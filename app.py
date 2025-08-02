@@ -1,5 +1,5 @@
 from flask import Flask, render_template, url_for, request, session, redirect,\
-      send_from_directory, jsonify
+      send_from_directory
 import json                                                                                       
 import os
 
@@ -7,23 +7,6 @@ users = {}  # For storing data of new users a global dict is created
  
 app = Flask(__name__)
 app.secret_key = 'mysecret'
-
-UPLOAD_FOLDER = 'uploads'  # Assigning 'uploads' value to UPLOAD_FOLDER
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-os.makedirs(UPLOAD_FOLDER, exist_ok=True) # will create folder if not exist 'exist_ok' will make sure that it will not throw error if folder is already there
-
-@app.route('/upload', methods =['GET', 'POST'])
-def upload():
-    filename = None
-    if request.method == 'POST':
-        file = request.files['file']
-        if file:
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'],
-                                    file.filename)
-            file.save(filepath)
-            filename = file.filename
-    return render_template('upload.html', filename = filename)
 
 
 @app.route('/home')
@@ -37,7 +20,7 @@ def register():
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
-        confirm_password = request.form.get('confirm_password', '')
+        confirm_password = request.form.get('confirm_password', '').strip()
 
         if os.path.exists('loginData.json') and os.path.getsize('loginData.json')> 0:
             with open('loginData.json', 'r') as f:
@@ -97,11 +80,6 @@ def login():
     return render_template('login.html', message=message)
 
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
 @app.route('/dashboard')
 def dashboard():
     if 'user' in session:
@@ -119,14 +97,6 @@ def logout():
 def greet_user(username):
     return f"Hello, {username}!"
 
-
-# Hitting API 
-@app.route('/api', methods =['POST'])
-def calculate_sum():
-    data = request.get_json() # By get_json() we can get the data in json format
-    a_val= float(dict(data)['a'])
-    b_val= float(dict(data)['b'])
-    return jsonify({'sum': a_val + b_val})
 
 if __name__ == '__main__':
     app.run(debug=True)
