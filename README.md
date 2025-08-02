@@ -5,7 +5,7 @@ A simple productivity tracker web app built using Flask and SQLite. This app all
 
 ---
 
- <h4>📌 Features </h4>
+# 📌 Features 
 
 User-friendly interface
 
@@ -39,29 +39,29 @@ Bootstrap (for styling)
 
 1. Clone the repository
 
-git clone https://github.com/yourusername/productivity-tracker.git
-cd productivity-tracker
+    git clone https://github.com/yourusername/productivity-tracker.git
+    cd productivity-tracker
 
 
 2. Create and activate a virtual environment
 
-python -m venv venv
-For Windows:-
-venv\Scripts\activate
+    python -m venv venv
+    For Windows:-
+    venv\Scripts\activate
 
 
 3. Install dependencies
 
-python -m pip install -r requirements.txt
+    python -m pip install -r requirements.txt
 
 
 4. Run the app
 
-python app.py
+    python app.py
 
 
 5. Visit
-Open your browser and go to http://localhost:5000
+    Open your browser and go to http://localhost:5000
 
 
 
@@ -71,7 +71,7 @@ Open your browser and go to http://localhost:5000
 # 📁 Project Structure
 ---
 
-🧠 To-Do / Coming Soon
+# 🧠 To-Do / Coming Soon
 
 Add timer for focused sessions (Pomodoro)
 
@@ -89,6 +89,6 @@ Export reports
 
 # 🙌 Acknowledgements
 
-Built as a part of my journey to becoming Version 0 — a disciplined, self-led developer.
+Built as a part of my journey to becoming — a disciplined, self-led developer.
 Special thanks to Flask and SQLAlchemy.
      
