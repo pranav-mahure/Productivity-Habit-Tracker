@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .dashboard-container {
+            background: white;
+            padding: 40px 32px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            width: 350px;
+            text-align: center;
+        }
+        h3 {
+            color: #5a67d8;
+            margin-bottom: 18px;
+        }
+        p {
+            color: #333;
+            margin-bottom: 24px;
+        }
+        a {
+            display: inline-block;
+            padding: 12px 28px;
+            background: #5a67d8;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        a:hover {
+            background: #434190;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h3>Welcome to the Dashboard, {{ user }}!</h3>
+        <p>This is your dashboard where you can manage your account.</p>
+        <a href="{{ url_for('upload') }}">Go to upload page</a>
+        <br>
+        <br>
+        <a href ="{{ url_for('logout')}}">Logout</a>
+    </div>
+</body>
+</html>

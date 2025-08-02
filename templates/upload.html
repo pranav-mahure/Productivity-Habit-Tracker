@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image</title>
+</head>
+<body>
+    <form method="POST" enctype="multipart/form-data">
+        <h3>Upload File</h3>
+        Select file to upload: <input type="file" name="file" required><br>
+        <button type="submit">Upload</button>
+        <br>
+        <a = href="{{url_for('home')}}"> Go back to home page</a>
+        <br>
+        <a = href="{{url_for('dashboard')}}">Dashboard</a>
+    </form>
+    {% if filename %}
+        <h2>File Uploaded Successfully</h2>
+        <br>
+        <h2>Preview:</h2>
+        <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image" style="max-width: 500px; max-height: 500px;">
+        <br>
+        <h5>File has been uploaded Successfully</h5>
+        <a= href="{{url_for('home')}}"> Go back to home page</a>
+        <a= href="{{url_for('dashboard')}}">Dashboard</a>
+        {% endif %}
+</body>
+</html>
