@@ -40,13 +40,15 @@ Bootstrap (for styling)
 1. Clone the repository
 
     git clone https://github.com/yourusername/productivity-tracker.git
+    <br>
     cd productivity-tracker
 
 
 2. Create and activate a virtual environment
 
     python -m venv venv
-    For Windows:-
+    <br>
+    For Windows:-<br>
     venv\Scripts\activate
 
 
