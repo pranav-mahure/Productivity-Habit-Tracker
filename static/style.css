@@ -1,43 +1,33 @@
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f9;
-    margin: 0;
-    padding: 0;
+/* layout */
+body { font-family: Arial, Helvetica, sans-serif; background:#f6f7fb; margin:0; color:#222; }
+.topnav { display:flex; justify-content:space-between; align-items:center; padding:12px 18px; background:#2b2f6b; color:white; }
+.topnav .brand { font-weight:700; }
+.topnav a { color:white; text-decoration:none; margin-left:12px; font-size:14px; }
+.container { width:900px; max-width:95%; margin:28px auto; }
+
+/* cards & forms */
+.card { background:white; padding:14px 16px; border-radius:8px; box-shadow:0 6px 18px rgba(30,30,60,0.06); margin-bottom:16px; }
+.form-card { display:block; gap:8px; }
+.form-card label { display:block; margin-top:8px; font-size:14px; color:#444; }
+.form-card input[type="text"], .form-card input[type="password"], .form-card select {
+  width:100%; padding:8px 10px; margin-top:6px; border:1px solid #ddd; border-radius:6px;
 }
-.nav {
-    background: #333;
-    padding: 10px;
-}
-.nav a {
-    color: white;
-    margin-right: 10px;
-    text-decoration: none;
-}
-.container {
-    width: 400px;
-    margin: 50px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-}
-input, button {
-    display: block;
-    width: 100%;
-    margin: 10px 0;
-    padding: 8px;
-}
-button {
-    background: #5c67f2;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-.flash {
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-}
-.flash.success { background: #d4edda; }
-.flash.danger { background: #f8d7da; }
-.flash.warning { background: #fff3cd; }
-.flash.info { background: #d1ecf1; }
+button.primary { margin-top:12px; background:#4b51f0; color:white; border:none; padding:10px 12px; border-radius:6px; cursor:pointer; }
+button.primary:hover { opacity:0.95; }
+
+/* tasks list */
+.task-list { list-style:none; padding-left:0; margin:0; }
+.task-list li { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f0f0f4; }
+.task-main { max-width:70%; }
+.task-main .meta { display:block; color:#666; font-size:13px; margin-top:4px; }
+.task-actions { text-align:right; }
+.status { font-size:13px; padding:6px 8px; border-radius:6px; background:#eef0ff; color:#2b2f6b; margin-right:8px; }
+
+/* small helpers */
+.small { font-size:13px; color:#666; margin-top:8px; }
+.small-link { font-size:13px; color:#4b51f0; text-decoration:none; margin-left:6px; }
+.alert { padding:10px 12px; border-radius:6px; margin-bottom:12px; }
+.alert.success { background:#e6f5ea; color:#1f6a3a; }
+.alert.danger { background:#fdecea; color:#7a1919; }
+.alert.warning { background:#fff7e6; color:#7a5a09; }
+.alert.info { background:#e7f3ff; color:#0b4f8a; }

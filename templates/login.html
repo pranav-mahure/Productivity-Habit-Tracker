@@ -1,11 +1,16 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h3>Login</h3>
-<form method="POST">
-    Username: <input type="text" name="username" required><br><br>
-    Password: <input type="password" name="password" required><br><br>
-    <button type="submit">Login</button>
+<h2>Login</h2>
+
+<form method="POST" class="card form-card">
+    <label>Username</label>
+    <input type="text" name="username" placeholder="Your username" required>
+
+    <label>Password</label>
+    <input type="password" name="password" placeholder="Your password" required>
+
+    <button type="submit" class="primary">Login</button>
 </form>
-<p>Don’t have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+
+<p class="small">New here? <a href="{{ url_for('register') }}">Create an account</a></p>
 {% endblock %}

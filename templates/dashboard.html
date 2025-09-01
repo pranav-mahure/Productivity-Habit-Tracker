@@ -1,42 +1,65 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Welcome, {{ username }} 👋</h2>
+<h2>Welcome, {{ username }} </h2>
 
-<h3>Add New Task / Habit</h3>
-<form method="POST">
-    <input type="text" name="task" placeholder="Task name" required><br>
-    Category: 
+<section class="card">
+  <h3>Add new task</h3>
+  <form method="POST" class="form-card">
+    <label>Task name</label>
+    <input type="text" name="task" placeholder="e.g., Read 30 pages" required>
+
+    <label>Category</label>
     <select name="category">
-        <option>General</option>
-        <option>Work</option>
-        <option>Study</option>
-        <option>Health</option>
-    </select><br>
-    Notes: <input type="text" name="notes" placeholder="Optional notes"><br>
-    <button type="submit">Add Task</button>
-</form>
+      <option>General</option>
+      <option>Work</option>
+      <option>Study</option>
+      <option>Health</option>
+    </select>
 
-<h3>Your Tasks</h3>
-<ul>
-    {% for task in tasks %}
+    <label>Notes (optional)</label>
+    <input type="text" name="notes" placeholder="Why this task matters">
+
+    <button type="submit" class="primary">Add Task</button>
+  </form>
+</section>
+
+<section class="card">
+  <h3>Your tasks</h3>
+  {% if tasks %}
+    <ul class="task-list">
+      {% for t in tasks %}
         <li>
-            {{ task[1] }} | {{ task[2] }} | {{ task[3] }} | {{ task[4] }}
-            {% if task[4] == "pending" %}
-                <a href="{{ url_for('complete_task', task_id=task[0]) }}">[Mark Completed]</a>
+          <div class="task-main">
+            <strong>{{ t['task'] }}</strong>
+            <span class="meta">{{ t['category'] }}{% if t['notes'] %} • {{ t['notes'] }}{% endif %}</span>
+          </div>
+          <div class="task-actions">
+            <span class="status">{{ t['status'] }}</span>
+            {% if t['status'] == 'pending' %}
+              <a class="small-link" href="{{ url_for('complete_task', task_id=t['id']) }}">Mark complete</a>
             {% endif %}
+          </div>
         </li>
-    {% endfor %}
-</ul>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No tasks yet — add one above </p>
+  {% endif %}
+</section>
 
-<h3>Analytics</h3>
-<p>Category Completion Rate:</p>
-<ul>
-    {% for cat, rate in category_stats.items() %}
-        <li>{{ cat }}: {{ "%.1f"|format(rate) }}%</li>
-    {% endfor %}
-</ul>
+<section class="card">
+  <h3>Quick insights</h3>
+  <p>Current streak: <strong>{{ streak }} day{{ 's' if streak != 1 else '' }}</strong></p>
 
-<p>Current Streak: {{ streak }} days</p>
-
-<a href="{{ url_for('logout') }}">Logout</a>
+  <h4>Category completion</h4>
+  {% if category_stats %}
+    <ul>
+      {% for cat, rate in category_stats.items() %}
+        <li>{{ cat }}: {{ rate }}%</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No data yet to show analytics.</p>
+  {% endif %}
+</section>
 {% endblock %}
