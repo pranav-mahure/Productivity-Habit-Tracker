@@ -1,93 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <style>
-        body {
-            background: #7770d1;
-            font-family: Arial, sans-serif;
-            display: flex;
-            height: 100vh;
-            justify-content: center;
-            align-items: center;
-        }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 300px;
-        }
-        h3 {
-            text-align: top left;
-            margin-bottom: 24px;
-            color: #333;
-        }
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0 16px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #5a67d8;
-            border: none;
-            color: white;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background-color: #434190;
-        }
-        .message {
-            text-align: center;
-            color: red;
-            margin-top: 10px;
-        }
-        a {
-            display: inline-block;
-            padding: 12px 28px;
-            background: #5a67d8;
-            color: white;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: small;
-            transition: background 0.3s;
-        }
-        a:hover {
-            background-color: #434190
-        }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <h3>Register</h3>
-        <form method="POST" action="{{ url_for('register') }}">
-            <input type="text" name="username" placeholder="Enter your username" required />
-            <input type="password" name="password" placeholder="Enter your password" required />
-            <input type="password" name="confirm_password" placeholder="Confirm your password" required />
-            {% if message %}
-                <div class="message">{{ message }}</div>
-            {% endif %}
-            <button type="submit">Register</button>
-            <br>
-            <div class="anchor">
-                <br>
-                <a href="{{ url_for('login') }}">Already have an account? Login</a>
-                <br>
-                <br>
-                <a href="{{ url_for('home') }}">Go to home</a>
-            </div>
-        </form>
-        
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h2>Register</h2>
+<form method="POST">
+    <input type="text" name="username" placeholder="Enter username" required>
+    <input type="password" name="password" placeholder="Enter password" required>
+    <button type="submit">Register</button>
+</form>
+<p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+{% endblock %}
