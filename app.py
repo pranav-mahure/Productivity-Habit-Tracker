@@ -1,57 +1,46 @@
-from flask import Flask, render_template, request, redirect, url_for, session, g, flash
-import sqlite3
+# app.py (SQLAlchemy version — minimal comments)
+
 import os
 from datetime import date
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_sqlalchemy import SQLAlchemy
 import pandas as pd
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"   # change this in production !!
+app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")  # override in prod
 
-DB_NAME = "tracker.db"
+# DB config: use DATABASE_URL if present (Postgres on Render), else local sqlite
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///tracker.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-def get_db():
-    db = getattr(g, "_database", None)
-    if db is None:
-        # Enable row access by column name for convenience
-        db = g._database = sqlite3.connect(DB_NAME)
-        db.row_factory = sqlite3.Row
-    return db
+db = SQLAlchemy(app)
 
-def init_db():
-    with app.app_context():
-        db = get_db()
-        cur = db.cursor()
-        # Users table
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL
-            )
-        """)
-        # Tasks 
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS tasks (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                task TEXT NOT NULL,
-                category TEXT DEFAULT 'General',
-                notes TEXT,
-                status TEXT DEFAULT 'pending',
-                date_completed TEXT,
-                FOREIGN KEY(user_id) REFERENCES users(id)
-            )
-        """)
-        db.commit()
+# Models
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    tasks = db.relationship("Task", backref="user", lazy=True)
 
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, "_database", None)
-    if db is not None:
-        db.close()
+class Task(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    task = db.Column(db.String(500), nullable=False)
+    category = db.Column(db.String(120), default="General")
+    notes = db.Column(db.String(1000))
+    status = db.Column(db.String(20), default="pending")
+    date_completed = db.Column(db.String(20))  # ISO date string
 
+# ensure tables exist
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
+# routes (kept behavior similar to your sqlite version)
 @app.route("/")
 def home():
     if "username" in session:
@@ -65,7 +54,6 @@ def register():
         password = request.form.get("password", "").strip()
         confirm = request.form.get("confirm_password", "").strip()
 
-        
         if not username or not password or not confirm:
             flash("Please fill out all fields.", "warning")
             return redirect(url_for("register"))
@@ -76,16 +64,15 @@ def register():
             flash("Passwords do not match.", "warning")
             return redirect(url_for("register"))
 
-        db = get_db()
-        cur = db.cursor()
-        try:
-            cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-            db.commit()
-            flash("Registration successful — you can now login.", "success")
-            return redirect(url_for("login"))
-        except sqlite3.IntegrityError:
+        if User.query.filter_by(username=username).first():
             flash("Username already taken — try another.", "danger")
             return redirect(url_for("register"))
+
+        user = User(username=username, password=password)
+        db.session.add(user)
+        db.session.commit()
+        flash("Registration successful — you can now login.", "success")
+        return redirect(url_for("login"))
 
     return render_template("register.html")
 
@@ -99,14 +86,10 @@ def login():
             flash("Please enter both username and password.", "warning")
             return redirect(url_for("login"))
 
-        db = get_db()
-        cur = db.cursor()
-        cur.execute("SELECT id FROM users WHERE username=? AND password=?", (username, password))
-        user = cur.fetchone()
-
+        user = User.query.filter_by(username=username, password=password).first()
         if user:
-            session["user_id"] = user["id"]
-            session["username"] = username
+            session["user_id"] = user.id
+            session["username"] = user.username
             flash(f"Welcome back, {username}!", "success")
             return redirect(url_for("dashboard"))
         else:
@@ -121,44 +104,34 @@ def dashboard():
         flash("Please login first.", "info")
         return redirect(url_for("login"))
 
-    db = get_db()
-    cur = db.cursor()
-
-    # new task creation
     if request.method == "POST":
-        task = request.form.get("task", "").strip()
+        task_text = request.form.get("task", "").strip()
         category = request.form.get("category", "General").strip()
         notes = request.form.get("notes", "").strip()
-        if not task:
+        if not task_text:
             flash("Task name cannot be empty.", "warning")
             return redirect(url_for("dashboard"))
-        cur.execute("""
-            INSERT INTO tasks (user_id, task, category, notes) VALUES (?, ?, ?, ?)
-        """, (session["user_id"], task, category, notes))
-        db.commit()
+        new_task = Task(user_id=session["user_id"], task=task_text, category=category, notes=notes)
+        db.session.add(new_task)
+        db.session.commit()
         flash("Task added.", "success")
         return redirect(url_for("dashboard"))
 
-    # Fetch user tasks
-    cur.execute("SELECT id, task, category, notes, status, date_completed FROM tasks WHERE user_id=? ORDER BY id DESC", (session["user_id"],))
-    tasks = cur.fetchall()
+    tasks = Task.query.filter_by(user_id=session["user_id"]).order_by(Task.id.desc()).all()
 
-    # Build a pandas DataFrame for analytics (safe even if empty)
-    df = pd.DataFrame(tasks, columns=["id","task","category","notes","status","date_completed"])
+    # prepare analytics via pandas
+    rows = [(t.id, t.task, t.category, t.notes, t.status, t.date_completed) for t in tasks]
+    df = pd.DataFrame(rows, columns=["id","task","category","notes","status","date_completed"]) if rows else pd.DataFrame()
     if df.empty:
         category_stats = {}
     else:
-        # completion rate per category (percentage)
         category_stats = (df.assign(completed=df["status"]=="completed")
                             .groupby("category")["completed"]
-                            .apply(lambda s: 100* s.sum()/len(s) if len(s)>0 else 0)
+                            .apply(lambda s: 100 * s.sum() / len(s) if len(s) > 0 else 0)
                             .round(1)
                             .to_dict())
 
-    # Simple streak calculation: number of consecutive days with at least one completed task (ending today)
-    completed_dates = set()
-    if not df.empty:
-        completed_dates = set(x for x in df[df["status"]=="completed"]["date_completed"].dropna().tolist())
+    completed_dates = set(df[df["status"]=="completed"]["date_completed"].dropna().tolist()) if not df.empty else set()
     streak = 0
     if completed_dates:
         today = date.today()
@@ -175,16 +148,14 @@ def complete_task(task_id):
         flash("Please login first.", "info")
         return redirect(url_for("login"))
 
-    db = get_db()
-    cur = db.cursor()
-    cur.execute("SELECT id FROM tasks WHERE id=? AND user_id=?", (task_id, session["user_id"]))
-    found = cur.fetchone()
-    if not found:
+    t = Task.query.filter_by(id=task_id, user_id=session["user_id"]).first()
+    if not t:
         flash("Task not found or not yours.", "danger")
         return redirect(url_for("dashboard"))
 
-    cur.execute("UPDATE tasks SET status='completed', date_completed=? WHERE id=? AND user_id=?", (date.today().isoformat(), task_id, session["user_id"]))
-    db.commit()
+    t.status = "completed"
+    t.date_completed = date.today().isoformat()
+    db.session.commit()
     flash("Marked as completed.", "success")
     return redirect(url_for("dashboard"))
 
@@ -194,7 +165,6 @@ def logout():
     flash("You have been logged out.", "info")
     return redirect(url_for("login"))
 
-
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=True)
+    db.create_all()  # create tables locally if needed
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
