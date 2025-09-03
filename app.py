@@ -64,17 +64,19 @@ def db_execute(query, params=()):
     Execute a query on the active connection.
     - Accepts queries written using SQLite-style '?' placeholders.
     - Converts '?' -> '%s' for psycopg2 when using Postgres.
-    Returns the cursor.
+    Returns the cursor (whose rows are dict-like for Postgres).
     """
     conn = get_db()
-    cur = conn.cursor()
+    # create cursor with RealDictCursor when using Postgres
     if USE_POSTGRES:
-        # convert '?' to '%s' for psycopg2 parameter style
+        cur = conn.cursor(cursor_factory=RealDictCursor)
         q = query.replace("?", "%s")
         cur.execute(q, params)
     else:
+        cur = conn.cursor()
         cur.execute(query, params)
     return cur
+
 
 
 def db_commit():
