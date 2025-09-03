@@ -1,120 +1,133 @@
 # 🔥 Productivity Habit Tracker
 
-A **simple and beginner-friendly web app** to track your daily habits, tasks, and progress, built using **Flask**, **SQLite**, and basic **HTML/CSS**.  
-
-Track tasks, mark them complete, see analytics, and maintain streaks to build consistent habits.  
-
----
-
-## 🌟 Features
-
-- ✅ **User Authentication** (Register / Login / Logout)  
-- ✅ **Add Tasks / Habits** with optional **notes** and **categories**  
-- ✅ **Mark Tasks Complete**  
-- ✅ **Daily Completion History** and **Streak Tracking**  
-- ✅ **Category-wise Completion Analytics**  
-- ✅ **Flash messages for errors & success notifications**  
-- ✅ **Clean, beginner-friendly interface using HTML & CSS**  
+A simple, beginner-friendly web app to track daily habits and small tasks — built with **Flask (v3)** and deployed on **Render**.  
+Features a task list, categories, optional notes, completion tracking, streaks, and basic category analytics using **pandas**.
 
 ---
 
-## 🛠️ Tech Stack
-
-- **Backend:** Python, Flask  
-- **Database:** SQLite  
-- **Frontend:** HTML, CSS (`minimal JS, optional`)  
-- **Data Analysis:** `pandas` (for simple analytics & completion rates)  
+## 🌟 Live Demo
+https://productivity-habit-tracker.onrender.com
 
 ---
 
-## 🚀 Getting Started
+## ✨ Features
 
-### 1️⃣ Clone the repository
+- User registration, login & logout (session-based)  
+- Add tasks with **category** and optional **notes**  
+- Mark tasks as **completed** (stores completion date)  
+- Quick insights: **streaks** and **category completion rates** (via pandas)  
+- Works locally with SQLite; in production uses Postgres (via `DATABASE_URL`)  
+- Flash messages for user-friendly feedback
+
+---
+
+## 📁 Repo structure
 ```bash
-git clone https://github.com/pranav-mahure/Login-page-by-flask.git
-cd Login-page-by-flask
+productivity-habit-tracker/
+├─ app.py
+├─ requirements.txt
+├─ templates/
+│     ├─ base.html
+│     ├─ login.html
+│     ├─ register.html
+│     └─ dashboard.html
+└─ static/
+     └─ style.css
 ```
-2️⃣ Create a virtual environment (optional but recommended)
+
+---
+
+## 🛠 Tech stack
+
+- Backend: **Flask** (Python)  
+- Database: **SQLite** (local dev) / **Postgres** (production via `DATABASE_URL`)  
+- Analytics: **pandas**  
+- Deployment: **Render** (gunicorn)
+
+---
+
+## 🚀 Quick start (local)
+
+1. Clone:
+```bash
+git clone https://github.com/<your-username>/Productivity-Habit-Tracker.git
+cd Productivity-Habit-Tracker
+```
+2.Create & activate a virtual environment:
 ```bash
 python -m venv venv
-source venv/bin/activate   # Linux / macOS
-venv\Scripts\activate      # Windows
+# macOS / Linux
+source venv/bin/activate
+# Windows (PowerShell)
+venv\Scripts\Activate.ps1
 ```
-3️⃣ Install required packages
+3.Install dependencies:
 ```bash
-pip install flask pandas
+pip install -r requirements.txt
 ```
-4️⃣ Run the app
+4.Run the app:
 ```bash
 python app.py
 ```
-5️⃣ Open in browser
+
+Open http://127.0.0.1:5000 in your browser.
+
+---
+## ☁️ Deploying to Render (summary)
+
+1.Create a Postgres database on Render (or use Supabase/ElephantSQL). Copy the Internal Database URL.
+
+2.Create a Web Service on Render, connect your GitHub repo and set the Start Command to:
 ```bash
-http://127.0.0.1:5000/
+gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT
 ```
-<!--
-🎬 Demo Workflow
+3.In the Web Service Environment settings, add:
 
-Capture a small GIF showing the app in action: Register → Login → Add Task → Complete Task → View Analytics
--->
----
-<!-- Replace this with your GIF link -->
-## 📁 Folder Structure
-```bash
-Login-page-by-flask/
-│
-├─ app.py
-├─ tracker.db          # SQLite database (auto-created)
-├─ templates/
-│   ├─ base.html
-│   ├─ login.html
-│   ├─ register.html
-│   └─ dashboard.html
-├─ static/
-│   └─ style.css
-└─ assets/
-    └─ demo.gif
-```
----
-## ✅ Usage Notes & Tips
+* `DATABASE_URL` → Internal Database URL from your Postgres instance
 
-* Passwords are stored as plain text in this beginner version for simplicity. Do not use real passwords here. Next improvement: add hashing with werkzeug.security.generate_password_hash.
+* `SECRET_KEY` → a long random string
 
-* If you see sqlite3.OperationalError on startup, make sure your tracker.db file is writeable in the project folder.
+4.Ensure `requirements.txt` is present in repo root (Render installs it during build).
 
-* Flash messages appear at the top of the dashboard/login pages to guide the user (e.g., "Invalid credentials", "Task added", etc.).
-
-## Future Improvements
-1.Add visual charts using matplotlib or plotly for habit analytics
-
-2.Password hashing for security
-
-2.Notifications / reminders for tasks
-
-3.Mobile-friendly responsive design
-
-4.Dark mode toggle
+5.Trigger deploy (Render auto-deploys on commit/push).
 
 ---
+## 🔒 Environment variables
 
-## 📌 Notes
+Set these on Render (Web Service → Environment):
 
-1.Flash messages are used to guide the user for errors, success, and notifications.
+* `DATABASE_URL` — Postgres connection string (internal URL if DB in same Render account).
 
-2.Beginner-friendly code structure so you can easily extend or modify the app.
+* `SECRET_KEY` — a strong random secret for Flask sessions.
 
-3.You can replace the GIF with actual screenshots or record a live demo for better presentation.
+Note: locally, the app falls back to tracker.db SQLite and a dev secret, so you don't have to set these for local testing.
+
+## ✅ Troubleshooting tips
+
+* If Render build fails: check requirements.txt spelling and build logs.
+
+* If you see relation "users" does not exist, ensure tables were created (app creates them at startup; check logs or run a one-time SQL script).
+
+* If tasks are not visible after adding, check Render logs for cursor/row format — the project uses dict-like rows for Postgres.
+
+---
+## 🔭 Next steps & ideas
+
+* Add password hashing for extra security.
+
+* Add charts (matplotlib/plotly) for visual analytics.
+
+* Add reminders/notifications and recurring tasks.
+
+* Make UI responsive + add dark mode.
 
 ---
 ## 🤝 Contributing
 
-1.Fork the repo
+Contributions welcome! Create a fork → make your changes → open a pull request. Please keep changes small and well-documented.
 
-2.Create a feature branch (`git checkout -b feature/my-feature`)
+---
+## 📜 License
 
-3.Commit your changes (`git commit -m 'Add feature'`)
-
-4.Push (`git push origin feature/my-feature`) and open a PR
-
-5.Keep changes small and well-commented — this project is designed for learning.
+This project is available under the MIT License.
 
