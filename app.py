@@ -155,7 +155,8 @@ def register():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
         confirm = request.form.get("confirm_password", "").strip()
-
+        
+        special_chars = "@_-."
         if not username or not password or not confirm:
             flash("Please fill out all fields.", "warning")
             return redirect(url_for("register"))
@@ -165,7 +166,19 @@ def register():
         if password != confirm:
             flash("Passwords do not match.", "warning")
             return redirect(url_for("register"))
-
+        if not any(c.islower() for c in password):
+            flash("Password must contain at least one lowercase letter")
+            return redirect(url_for("register"))
+        if not any(c.isupper() for c in password):
+            flash("Password must contain at least one uppercase letter")
+            return redirect(url_for("register"))
+        if not any(c.isdigit() for c in password):
+            flash("Password must contain at least one digit")
+            return redirect(url_for("register"))
+        if not any(c in special_chars for c in password):
+            flash(" Password must contain at least one special character (@, _, -, .)")
+            return redirect(url_for("register"))
+            
         try:
             db_execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
             db_commit()
