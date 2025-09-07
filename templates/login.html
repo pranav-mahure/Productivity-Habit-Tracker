@@ -1,5 +1,6 @@
-{% extends "base.html" %}
+{% extends "base.html" %} 
 {% block content %}
+<h2>Welcome to Productivity Habit Tracker </h2>
 <h2>Login</h2>
 
 <form method="POST" class="card form-card">
@@ -13,4 +14,29 @@
 </form>
 
 <p class="small">New here? <a href="{{ url_for('register') }}">Create an account</a></p>
+
+<!-- Quote Box -->
+<div id="quote-box" style="margin-top: 20px; font-style: italic; color: #555; text-align: center;"></div>
+
+<script>
+    const quotes = [
+        "Discipline is the bridge between goals and accomplishment.",
+        "Every small step compounds into greatness.",
+        "Stay consistent, results will follow.",
+        "Your habits today define your tomorrow.",
+        "Progress, not perfection."
+    ];
+
+    let i = 0;
+    const quoteBox = document.getElementById("quote-box");
+
+    // Show first quote immediately
+    quoteBox.innerText = quotes[i];
+
+    // Auto-rotate every 5 seconds
+    setInterval(() => {
+        i = (i + 1) % quotes.length;
+        quoteBox.innerText = quotes[i];
+    }, 5000);
+</script>
 {% endblock %}
